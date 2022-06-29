@@ -1,7 +1,9 @@
 # MoneyLoser
 An Oanda v20 API trading robot which may lose your money
+
 An simple project using Python asyncio and requests modules to trade with Oanda v20 API
 
+***Warning! Don't use this project to trade***
 ## Configuration
 ---
 Fill the token and account ID values in file app.conf
@@ -16,6 +18,18 @@ $ vi app.conf
 - Python
 ```bash
 $ python3 app.py -h
+python3 app.py -h
+usage: app.py [-h] [-d] [-D] [-t] [-l LOGFILE]
+
+Oanda v20 API trader
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           Run in the debug mode
+  -D, --demo            Run in the demo mode
+  -t, --textui          Run in the text-ui mode
+  -l LOGFILE, --log LOGFILE
+                        Log into file LOGFILE
 ```
 - Docker
 Not test yet...
