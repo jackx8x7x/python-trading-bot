@@ -1,5 +1,5 @@
 # MoneyLoser
-An Oanda v20 API trading robot which may lose your money
+An [Oanda v20 API](https://developer.oanda.com/rest-live-v20/introduction/) trading robot which may lose your money
 
 An simple project using Python asyncio and requests modules to trade with Oanda v20 API
 
@@ -44,3 +44,7 @@ Using `curses`
 ## Demo
 ---
 <img width="1726" alt="demo" src="https://user-images.githubusercontent.com/43628402/176477007-6639ed03-e12f-49eb-bf2a-86582b768d61.png">
+
+## Tags
+---
+#Oanda, #tradingbot, #bot, #forex, #CFD, #trading
