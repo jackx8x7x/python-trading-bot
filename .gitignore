@@ -1,0 +1,9 @@
+node_modules/
+package-lock.json
+.*.swp
+.env
+app.conf
+transactions.db
+account_token
+__pycache__
+trader.log
