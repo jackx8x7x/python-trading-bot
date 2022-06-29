@@ -194,7 +194,7 @@ class Instrument(ApiWrapper):
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and (pl > 0.15 or (pl < 0.15 and MA2[-1] >= lastPrice > MA3[-1])):
+					if used/NAV < 0.1 and (pl > 0.15 or (pl < -0.15 and MA2[-1] >= lastPrice > MA3[-1])):
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
 
@@ -223,7 +223,7 @@ class Instrument(ApiWrapper):
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and (pl > 0.15 or (pl < 0.15 and MA2[-1] <= lastPrice < MA3[-1])):
+					if used/NAV < 0.1 and (pl > 0.15 or (pl < -0.15 and MA2[-1] <= lastPrice < MA3[-1])):
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
 
