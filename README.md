@@ -15,7 +15,7 @@ $ vi app.conf
 
 ## Run
 ---
-- Python
+### Python
 ```bash
 $ python3 app.py -h
 python3 app.py -h
@@ -31,13 +31,13 @@ optional arguments:
   -l LOGFILE, --log LOGFILE
                         Log into file LOGFILE
 ```
-- Docker
+### Docker
 Not test yet...
 
 ## Components
 ---
 ### API wrapper
-Using Python requests module
+Using Python `requests` module
 ### UI
 Using `curses`
 
