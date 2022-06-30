@@ -37,13 +37,19 @@ Not test yet...
 ## Components
 ---
 ### API wrapper
-Using Python `requests` module
+- Using Python `requests` module
+### Class Trader
+- Updates and monitoring account state
+### Class Instrument
+- Retrieve instrument's price information
+- Creates market order on some strategy
+- Provides method to load custom strategies ***(under development)***
 ### UI
 Using `curses`
 ## Todo
 ---
 - Rule based decision and trading system
-  - Use a set of custom user define rule and state of class trader to make decision and trade
+  - Use a set of custom user-defined rules and current trading state to make decision and trade
 - Custom strategy loading support
 - Define a language to describe a loadable module
 ## Demo
