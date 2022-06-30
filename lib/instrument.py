@@ -168,15 +168,6 @@ class Instrument(ApiWrapper):
 			d = MA2 - MA3
 			op = self.openPositions
 			if (MA2 > MA3)[-l:].all():
-				if (MA1 < MA3)[-l:].all() and MA2[-1] - lastPrice > stopLoss/3:
-					asyncio.create_task(self.closeLong())
-					await asyncio.sleep(self.tradeInterval*60)
-					continue
-				elif aboveCross(MA1, MA3, 5):
-					asyncio.create_task(self.closeLong())
-					await asyncio.sleep(self.tradeInterval*60)
-					continue
-
 				# First order in long position
 				if not op or float(op['long']['units']) == 0:
 					if (d[-l:-1] <= d[-l+1:]).all() and (MA1 >= MA2)[-l:].all():
@@ -197,21 +188,11 @@ class Instrument(ApiWrapper):
 					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and MA3[-1] >= lastPrice:
-						if op and float(op['short']['units']) == 0:
-							await self.createOrder(-units, stopLoss*0.8, stopLoss*0.8)
-							await asyncio.sleep(self.tradeInterval*60)
+					if pl < -0.15 and MA2[-1] >= lastPrice:
+						await self.createOrder(units, takeProfit, stopLoss)
+						await asyncio.sleep(self.tradeInterval*60)
 
 			elif (MA2 < MA3)[-l:].all():
-				if (MA1 > MA3)[-l:].all() and lastPrice - MA2[-1] > stopLoss/3:
-					asyncio.create_task(self.closeShort())
-					await asyncio.sleep(self.tradeInterval*60)
-					continue
-				elif belowCross(MA1, MA3, 5):
-					asyncio.create_task(self.closeShort())
-					await asyncio.sleep(self.tradeInterval*60)
-					continue
-
 				if not op or float(op['short']['units']) == 0:
 					if (d[-l:-1] >= d[-l+1:]).all() and (MA1 <= MA2)[-l:].all():
 						if -(MA1-MA3).min() > takeProfit/2:
@@ -230,10 +211,9 @@ class Instrument(ApiWrapper):
 					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and lastPrice >= MA3[-1]:
-						if op and float(op['long']['units']) == 0:
-							await self.createOrder(units, stopLoss*0.8, stopLoss*0.8)
-							await asyncio.sleep(self.tradeInterval*60)
+					if pl < -0.15 and lastPrice >= MA2[-1]:
+						await self.createOrder(-units, takeProfit, stopLoss)
+						await asyncio.sleep(self.tradeInterval*60)
 
 			await asyncio.sleep(self.tradeDelay)
 

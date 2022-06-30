@@ -18,7 +18,7 @@ class Dashboard:
 		self.stdscr.nodelay(True)
 		self.trader = trader
 		self.interval = 1
-		self.sortBy = 'instrument'
+		self.sortBy = 'PL'
 		lines, cols = curses.LINES, curses.COLS
 		assert lines >= 24
 		assert cols >= 80
@@ -58,8 +58,18 @@ class Dashboard:
 			elif k == 's':
 				j = (j+1) % ls
 				self.sortBy = sorts[j]
-			elif k in ['d', 'w']:
-				self.interval = 24 if k == 'd' else 168
+			elif k in ['h', 'd', 'w']:
+				if k == 'h':
+					self.interval = 1
+				elif k == 'd':
+					self.interval = 24
+				elif k == 'w':
+					self.interval = 168
+				i = intervals.index(self.interval)
+			elif k == 'K':
+				for _, instr in self.trader.instruments.items():
+					asyncio.create_task(instr.closeLong())
+					asyncio.create_task(instr.closeShort())
 
 	async def openPositionsStateUI(self):
 		OpenPositionFields = ("Instrument", "Units", "UnrealizedPL", "AveragePrice", "Change")
