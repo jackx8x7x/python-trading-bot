@@ -197,9 +197,9 @@ class Instrument(ApiWrapper):
 					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and MA2[-1] >= lastPrice > MA3[-1]:
+					if pl < -0.15 and MA3[-1] >= lastPrice:
 						if op and float(op['short']['units']) == 0:
-							await self.createOrder(-units, takeProfit*0.8, stopLoss*0.8)
+							await self.createOrder(-units, stopLoss*0.8, stopLoss*0.8)
 							await asyncio.sleep(self.tradeInterval*60)
 
 			elif (MA2 < MA3)[-l:].all():
@@ -230,9 +230,9 @@ class Instrument(ApiWrapper):
 					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and MA3[-1] > lastPrice >= MA2[-1]:
+					if pl < -0.15 and lastPrice >= MA3[-1]:
 						if op and float(op['long']['units']) == 0:
-							await self.createOrder(units, takeProfit*0.8, stopLoss*0.8)
+							await self.createOrder(units, stopLoss*0.8, stopLoss*0.8)
 							await asyncio.sleep(self.tradeInterval*60)
 
 			await asyncio.sleep(self.tradeDelay)

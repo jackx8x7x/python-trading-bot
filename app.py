@@ -74,6 +74,8 @@ class App:
 			elif k == 's':
 				j = (j+1) % ls
 				self.sortBy = sorts[j]
+			elif k in ['d', 'w']:
+				self.interval = 24 if k == 'd' else 168
 
 	async def openPositionsStateUI(self):
 		trader = self.trader
@@ -286,6 +288,8 @@ if __name__ == '__main__':
 		help='Run in the text-ui mode')
 	parser.add_argument('-l', '--log', metavar='LOGFILE',
 		help='Log into file LOGFILE')
+	parser.add_argument('-r', '--report', action='store_true',
+		help='Run in the report only mode and not to trade')
 
 	args = parser.parse_args()
 
@@ -297,6 +301,8 @@ if __name__ == '__main__':
 	textUi = config.get('TEXTUI', 0)
 	logfile = config.get('logfile', 'trader.log')
 
+	if args.report:
+		config['reportOnly'] = True
 	if args.debug:
 		debugMode = 1
 		config['DEBUG'] = 1

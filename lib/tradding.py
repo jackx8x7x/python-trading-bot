@@ -84,6 +84,7 @@ class Trader(ApiWrapper):
 		self.pollDelay = 3
 		self.accountState = AccountState()
 		self.transactions = Transactions(config)
+		self.reportOnly = config.get('reportOnly', False)
 
 		self.instruments = {}
 		for instrConf in instruConfig:
@@ -142,5 +143,6 @@ class Trader(ApiWrapper):
 
 	async def run(self):
 		self.pollTask = asyncio.create_task(self.pollState())
-		self.tradeTask = asyncio.create_task(self.trade())
+		if not self.reportOnly:
+			self.tradeTask = asyncio.create_task(self.trade())
 		await self.pollTask
