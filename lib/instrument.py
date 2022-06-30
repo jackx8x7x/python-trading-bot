@@ -93,7 +93,7 @@ class Instrument(ApiWrapper):
 		while True:
 			# Trade between 00:30 UTC to 20:30 UTC
 			now = self.now()
-			start = time(00, 30, 0)
+			start = time(00, 00, 0)
 			end = time(20, 30, 0)
 			closeAll = time(20, 35, 0)
 			if not (start <= now.time() <= end):
@@ -158,7 +158,7 @@ class Instrument(ApiWrapper):
 			units = self.getUnits(amount)
 			lastPrice = self.lastPrice
 			takeProfit = abs(lastPrice * self.takeProfit)
-			stopLoss = abs(lastPrice * self.stopLoss)
+			stopLoss = max(abs(lastPrice * self.stopLoss), abs(lastPrice - MA2[-1]))
 
 			ops = self.openPositions
 
@@ -168,7 +168,7 @@ class Instrument(ApiWrapper):
 			d = MA2 - MA3
 			op = self.openPositions
 			if (MA2 > MA3)[-l:].all():
-				if (MA1 < MA3)[-l:].all():
+				if (MA1 < MA3)[-l:].all() and MA2[-1] - lastPrice > stopLoss/3:
 					asyncio.create_task(self.closeLong())
 					await asyncio.sleep(self.tradeInterval*60)
 					continue
@@ -190,16 +190,20 @@ class Instrument(ApiWrapper):
 								if not op or float(op['long']['units']) == 0:
 									break
 
-				# Add more orders in long position
+				# Add more orders in long position or hedge on opposite side
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and (pl > 0.15 or (pl < -0.15 and MA2[-1] >= lastPrice > MA3[-1])):
+					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
+					if pl < -0.15 and MA2[-1] >= lastPrice > MA3[-1]:
+						if op and float(op['short']['units']) == 0:
+							await self.createOrder(-units, takeProfit*0.8, stopLoss*0.8)
+							await asyncio.sleep(self.tradeInterval*60)
 
 			elif (MA2 < MA3)[-l:].all():
-				if (MA1 > MA3)[-l:].all():
+				if (MA1 > MA3)[-l:].all() and lastPrice - MA2[-1] > stopLoss/3:
 					asyncio.create_task(self.closeShort())
 					await asyncio.sleep(self.tradeInterval*60)
 					continue
@@ -223,9 +227,13 @@ class Instrument(ApiWrapper):
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and (pl > 0.15 or (pl < -0.15 and MA2[-1] <= lastPrice < MA3[-1])):
+					if used/NAV < 0.1 and pl > 0.15:
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
+					if pl < -0.15 and MA3[-1] > lastPrice >= MA2[-1]:
+						if op and float(op['long']['units']) == 0:
+							await self.createOrder(units, takeProfit*0.8, stopLoss*0.8)
+							await asyncio.sleep(self.tradeInterval*60)
 
 			await asyncio.sleep(self.tradeDelay)
 

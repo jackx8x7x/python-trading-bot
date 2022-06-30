@@ -86,10 +86,10 @@ class Transactions(ApiWrapper):
 			self.insertBulk(trans)
 	
 	# Mode is !=, > or <
-	async def getReport(self, hrs=1, mode='!='):
+	async def getReport(self, hrs=1, mode='!=', sort='instrument'):
 		hrs = int(hrs)
 		since = self.now() - timedelta(hours=hrs)
-		return await self.reportInRange(since=since, mode=mode)
+		return await self.reportInRange(since=since, mode=mode, sort=sort)
 
 	'''
 	Generate report for each instrument on a give time range
@@ -101,8 +101,9 @@ class Transactions(ApiWrapper):
 		1 hr/today/lastday/1 week
 	'''
 	async def reportInRange(self, since: datetime,
-	to=None, mode='!='):
+	to=None, mode='!=', sort='instrument'):
 		assert mode in ['!=', '<', '>']
+		assert sort in ['instrument', 'ord', 'PL', 'rate']
 		await self.retrieveAll()
 
 		sinceUnix = since.strftime("%s")
@@ -130,10 +131,12 @@ class Transactions(ApiWrapper):
 			'''
 
 			sql = f'''
-			SELECT instrument, count(id), sum(pl)
+			SELECT instrument, ord, PL, PL/ord as rate FROM
+			(SELECT instrument, count(id) as ord, sum(pl) as PL
 			FROM {self.db}
 			WHERE pl {mode} 0 and time > {sinceUnix} and time < {toUnix}
-			GROUP BY instrument'''
+			GROUP BY instrument)
+			ORDER BY {sort} DESC'''
 
 			rec = cur.execute(sql)
 			return rec

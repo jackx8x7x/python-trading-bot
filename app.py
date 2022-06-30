@@ -34,6 +34,7 @@ class App:
 		self.stdscr.nodelay(True)
 		self.trader = trader
 		self.interval = 1
+		self.sortBy = 'instrument'
 		lines, cols = curses.LINES, curses.COLS
 		assert lines >= 24
 		assert cols >= 80
@@ -54,8 +55,9 @@ class App:
 	async def inputHandler(self):
 		# hours rotate when user pres blank
 		intervals = [1, 2, 6, 12, 24, 72, 168, 24*30, 24*365]
-		l = len(intervals)
-		i = 0
+		sorts = ['instrument', 'ord', 'PL', 'rate']
+		l, ls = len(intervals), len(sorts)
+		i, j = 0, 0
 		while True:
 			try:
 				k = self.stdscr.getkey()
@@ -69,6 +71,9 @@ class App:
 			elif k == curses.KEY_UP or k == 'k':
 				i = (i-1) % l
 				self.interval = intervals[i]
+			elif k == 's':
+				j = (j+1) % ls
+				self.sortBy = sorts[j]
 
 	async def openPositionsStateUI(self):
 		trader = self.trader
@@ -195,10 +200,11 @@ class App:
 			order = 0
 			pl = 0
 			mode = modes[j]
-			trans = await transactions.getReport(hrs = interval, mode=mode)
+			trans = await transactions.getReport(hrs = interval, mode=mode,
+			sort=self.sortBy)
 			i = 3
 			for t in trans:
-				s = " %6u %12s %8u %9.2f %10.2f" % (i-2, *t, t[2]/t[1])
+				s = " %6u %12s %8u %9.2f %10.2f" % (i-2, *t)
 				order = order + t[1]
 				pl = pl + t[2]
 				if i < y-2:
