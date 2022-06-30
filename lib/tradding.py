@@ -94,16 +94,21 @@ class Trader(ApiWrapper):
 					{instr.name: instr}
 				)
 
-	
-	def now(self):
-		return datetime.now(tz=timezone.utc)
+	'''
+	Load user-defined strategies
+	'''
+	def loadStrategies(self):
+		pass
 
+	'''
+	Update account's state
+	'''
 	async def updateAccountState(self):
 		_ = await self.getAccountSummary()
 		if not _:
 			logger.info('Get account summary fail')
 			return {}
-		
+
 		accountState = _['account']
 		self.accountState.update(accountState)
 		self.accountState.NAV = float(self.accountState.NAV)
@@ -111,6 +116,9 @@ class Trader(ApiWrapper):
 
 		return _
 
+	'''
+	Update each instrument's open positions state
+	'''
 	async def updateOpenPositions(self):
 		for name, instr in self.instruments.items():
 			instr.openPositions = {}
@@ -123,9 +131,9 @@ class Trader(ApiWrapper):
 				instr.openPositions.update(op)
 
 	'''
-	Update account state and get all open positions(self.openPositions)
+	Update account state, open positions and trading history repeatly
 	'''
-	async def pollState(self):
+	async def updateState(self):
 		while True:
 			await self.updateAccountState()
 			await self.updateOpenPositions()
@@ -142,7 +150,11 @@ class Trader(ApiWrapper):
 			asyncio.create_task(instr.asyncTrade())
 
 	async def run(self):
-		self.pollTask = asyncio.create_task(self.pollState())
+		self.updateStateTask = asyncio.create_task(self.updateState())
 		if not self.reportOnly:
 			self.tradeTask = asyncio.create_task(self.trade())
-		await self.pollTask
+		await self.updateStateTask
+
+	def now(self):
+		return datetime.now(tz=timezone.utc)
+
