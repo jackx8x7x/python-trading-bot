@@ -55,8 +55,8 @@ class Dashboard:
 			elif k == curses.KEY_UP or k == 'k':
 				i = (i-1) % l
 				self.interval = intervals[i]
-			elif k == 's':
-				j = (j+1) % ls
+			elif k in ['s', 'S']:
+				j = (j+1) % ls if k == 's' else (j-1) % ls
 				self.sortBy = sorts[j]
 			elif k in ['h', 'd', 'w']:
 				if k == 'h':

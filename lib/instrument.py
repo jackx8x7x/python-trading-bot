@@ -4,7 +4,7 @@ from datetime import time
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
-from lib.api import ApiWrapper
+from lib.ApiWrapper import ApiWrapper
 from lib.candles import moving_average as ma
 from lib.candles import belowCross, aboveCross, upCross, downCross
 
@@ -25,6 +25,8 @@ class Instrument(ApiWrapper):
 		self.tradable = 1
 		self.state = 0
 		self.lastPrice = 0
+		self.longTask = None
+		self.shortTask = None
 		self.leverage = appConfig.get('leverage', 20)
 		self.maxOpenPositions = appConfig.get('maxOpenPositions', 15)
 		self.takeProfit = appConfig.get('takeProfit', 0.002)
@@ -171,51 +173,59 @@ class Instrument(ApiWrapper):
 				# First order in long position
 				if not op or float(op['long']['units']) == 0:
 					if (d[-l:-1] <= d[-l+1:]).all() and (MA1 >= MA2)[-l:].all():
-						if (MA1-MA3).max() > takeProfit/2:
-							await self.createOrder(units, takeProfit, stopLoss)
-							sec = self.tradeInterval*60
-							while sec > 0:
-								await asyncio.sleep(1)
-								sec = sec - 1
-								op = self.openPositions
-								if not op or float(op['long']['units']) == 0:
-									break
+						if (MA1-MA3).max() > takeProfit:
+							if not self.longTask:
+								self.longTask = asyncio.create_task(self.createOrderInTimeout(lastPrice - takeProfit/2, units, takeProfit, stopLoss))
 
 				# Add more orders in long position or hedge on opposite side
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and pl > 0.15:
+					pos = op['long']
+					average = float(pos.get('averagePrice'))
+					if used/NAV < 0.1 and lastPrice > average + stopLoss/2:
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and MA2[-1] >= lastPrice:
+					if used/NAV < 0.1 and pl < -0.15 and MA3[-1] >= lastPrice:
 						await self.createOrder(units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
 
 			elif (MA2 < MA3)[-l:].all():
 				if not op or float(op['short']['units']) == 0:
 					if (d[-l:-1] >= d[-l+1:]).all() and (MA1 <= MA2)[-l:].all():
-						if -(MA1-MA3).min() > takeProfit/2:
-							await self.createOrder(-units, takeProfit, stopLoss)
-							sec = self.tradeInterval*60
-							while sec > 0:
-								await asyncio.sleep(1)
-								sec = sec - 1
-								op = self.openPositions
-								if not op or float(op['short']['units']) == 0:
-									break
+						if -(MA1-MA3).min() > takeProfit:
+							if not self.shortTask:
+								self.shortTask = asyncio.create_task(self.createOrderInTimeout(lastPrice + takeProfit/2, -units, takeProfit, stopLoss))
 
 				else:
 					used = float(op.get('marginUsed', 0))
 					pl = float(op['unrealizedPL'])
-					if used/NAV < 0.1 and pl > 0.15:
+					pos = op['short']
+					average = float(pos.get('averagePrice'))
+					if used/NAV < 0.1 and lastPrice < average - stopLoss/2:
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
-					if pl < -0.15 and lastPrice >= MA2[-1]:
+					if used/NAV < 0.1 and pl < -0.15 and lastPrice >= MA3[-1]:
 						await self.createOrder(-units, takeProfit, stopLoss)
 						await asyncio.sleep(self.tradeInterval*60)
 
 			await asyncio.sleep(self.tradeDelay)
+
+	'''
+	In a given timeout, create order if price near target
+	'''
+	async def createOrderInTimeout(self, target, units, takeProfit, stopLoss, timeout=10*60):
+		while timeout > 0:
+			timeout = timeout - 1
+			lastPrice = self.lastPrice
+			if units > 0 and lastPrice < target:
+				await self.createOrder(units, takeProfit, stopLoss)
+				break
+			elif units > 0 and lastPrice > target:
+				await self.createOrder(units, takeProfit, stopLoss)
+				break
+			await asyncio.sleep(self.tradeDelay)
+		self.limitOrderTask = None
 
 	async def createOrder(self, units=0, takeProfit=0, stopLoss=0):
 		if not self.tradable:

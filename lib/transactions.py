@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
-from lib.api import ApiWrapper
+from lib.ApiWrapper import ApiWrapper
 
 logger = logging.getLogger(__name__)
 

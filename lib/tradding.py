@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
-from lib.api import ApiWrapper
+from lib.ApiWrapper import ApiWrapper
 from lib.instrument import Instrument
 from lib.transactions import Transactions
 
