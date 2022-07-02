@@ -5,7 +5,7 @@ import curses
 import argparse
 from datetime import datetime
 from datetime import timezone
-from lib.tradding import Trader
+from lib.trader import Trader
 from lib.interface import Dashboard
 
 '''

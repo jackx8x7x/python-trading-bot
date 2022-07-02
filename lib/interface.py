@@ -9,7 +9,7 @@ import argparse
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
-from lib.tradding import Trader
+from lib.trader import Trader
 from lib.transactions import Transactions
 
 class Dashboard:
