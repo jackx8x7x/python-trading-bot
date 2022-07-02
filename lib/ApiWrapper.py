@@ -1,7 +1,7 @@
 import requests
 import json
 import logging
-from lib.api import account, transaction, position, order, instrument
+from .api import account, transaction, position, order, instrument
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone

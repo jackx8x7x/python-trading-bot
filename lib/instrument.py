@@ -4,9 +4,9 @@ from datetime import time
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
-from lib.ApiWrapper import ApiWrapper
-from lib.candles import moving_average as ma
-from lib.candles import belowCross, aboveCross, upCross, downCross
+from .ApiWrapper import ApiWrapper
+from .candles import moving_average as ma
+from .candles import belowCross, aboveCross, upCross, downCross
 
 logger = logging.getLogger(__name__)
 

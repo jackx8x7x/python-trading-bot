@@ -9,8 +9,8 @@ import argparse
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
-from lib.trader import Trader
-from lib.transactions import Transactions
+from .trader import Trader
+from .transactions import Transactions
 
 class Dashboard:
 	def __init__(self, stdscr, trader):
