@@ -15,17 +15,6 @@ from .transactions import Transactions
 logger = logging.getLogger(__name__)
 
 '''
-instrument
-units
-takeprofit
-stoploss
-'''
-class Order(object):
-	def __init__(self, data):
-		self.__dict__.update(data)
-		self.data = data
-
-'''
 Account summary
 {
 	"guaranteedStopLossOrderMode": "ALLOWED",
@@ -74,6 +63,8 @@ class AccountState(object):
 
 	def update(self, data):
 		self.__dict__.update(data)
+		self.NAV = float(self.NAV)
+		self.marginUsed = float(self.marginUsed)
 
 class Trader(ApiWrapper):
 	def __init__(self, config: dict, instruConfig: list):
@@ -111,8 +102,6 @@ class Trader(ApiWrapper):
 
 		accountState = _['account']
 		self.accountState.update(accountState)
-		self.accountState.NAV = float(self.accountState.NAV)
-		self.accountState.marginUsed = float(self.accountState.marginUsed)
 
 		return _
 
