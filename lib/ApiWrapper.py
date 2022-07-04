@@ -1,7 +1,7 @@
 import requests
 import json
 import logging
-from .api import account, transaction, position, order, instrument
+from .api import account, transaction, position, order, instrument, trade
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -51,6 +51,12 @@ class ApiWrapper:
 
 	async def getCandles(self, name, since, gran='M1'):
 		return await instrument.getCandles(self, name, since, gran)
+
+	async def getOpenTrades(self):
+		return await trade.getOpenTrades(self)
+
+	async def closeOpenTrade(self, tradeID):
+		return await trade.closeOpenTrade(self, tradeID)
 
 	def log(self, msg):
 		time = datetime.now(tz=timezone.utc)
