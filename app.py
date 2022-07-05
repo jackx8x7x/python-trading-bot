@@ -30,7 +30,7 @@ if __name__ == '__main__':
 		help='Run in the report only mode and not to trade')
 	args = parser.parse_args()
 
-	with open('app.conf', 'r') as f:
+	with open('conf/app.conf', 'r') as f:
 		config = json.load(f)
 	
 	'''

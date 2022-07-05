@@ -81,7 +81,7 @@ class Trader(ApiWrapper):
 		self.reportOnly = config.get('reportOnly', False)
 
 		self.instruments = {}
-		_instrConfig = join(dirname(__file__),'instruments.conf')
+		_instrConfig = 'conf/instruments.conf'
 		with open(_instrConfig, 'r') as f:
 			_ = json.load(f)
 			instruConfig = _.get('instruments', {})

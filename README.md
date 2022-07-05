@@ -9,8 +9,8 @@ An hobby project using Python asyncio and requests modules to trade with Oanda v
 Fill the token and account ID values in file app.conf
 
 ```bash
-$ mv sample-app.conf app.conf
-$ vi app.conf
+$ mv conf/sample-app.conf conf/app.conf
+$ vi conf/app.conf
 ```
 
 ## Run

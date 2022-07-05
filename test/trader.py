@@ -2,7 +2,7 @@ import json
 from lib.trader import Trader
 
 config = {}
-with open('app.conf', 'r') as f:
+with open('conf/app.conf', 'r') as f:
 	config = json.load(f)
 
 config['DEMO'] = 1
