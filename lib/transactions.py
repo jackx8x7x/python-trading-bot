@@ -16,7 +16,8 @@ class Transactions(ApiWrapper):
 	def __init__(self, config: dict):
 		super().__init__(config)
 		self.db = config.get("dbname", "order_fill")
-		self.sqlite = config.get("sqlite", "transactions.db")
+		_ = config.get("sqlite", "log/transactions-{ID}.db")
+		self.sqlite = _.format(ID = self.accountID)
 		self.initdb()
 		self.tz = timezone.utc
 	

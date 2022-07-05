@@ -8,6 +8,7 @@ def dump(o):
 class TestCloseAllTrade(unittest.IsolatedAsyncioTestCase):
 	async def test_getOpenTrades(self):
 		openTrades = await trader.getOpenTrades()
+		print(dump(openTrades))
 
 		for o in openTrades:
 			print(f"Close order {o.get('id')}")

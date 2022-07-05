@@ -58,16 +58,19 @@ class AccountState(object):
 		self.NAV = 1000
 		self.marginUsed = 0
 		self.openPositionCount = 0
-		self.unrealizedPL = '0'
-		self.pl = '0'
+		self.unrealizedPL = 0
+		self.pl = 0
 
 	def update(self, data):
 		self.__dict__.update(data)
 		self.NAV = float(self.NAV)
 		self.marginUsed = float(self.marginUsed)
+		self.unrealizedPL = float(self.unrealizedPL)
+		self.pl = float(self.pl)
 
+from os.path import dirname, join
 class Trader(ApiWrapper):
-	def __init__(self, config: dict, instruConfig: list):
+	def __init__(self, config: dict):
 		super().__init__(config)
 		self.allowOpsCount = config.get('maxOpenPositions', 15)
 		self.leverage = config.get('leverage', 20)
@@ -78,12 +81,15 @@ class Trader(ApiWrapper):
 		self.reportOnly = config.get('reportOnly', False)
 
 		self.instruments = {}
-		for instrConf in instruConfig:
-			instr = Instrument(config, instrConf, self)
-			if instr.tradable == 1:
-				self.instruments.update(
-					{instr.name: instr}
-				)
+		_instrConfig = join(dirname(__file__),'instruments.conf')
+		with open(_instrConfig, 'r') as f:
+			_ = json.load(f)
+			instruConfig = _.get('instruments', {})
+			for instrConf in instruConfig:
+				instr = Instrument(config, instrConf, self)
+				if instr.tradable == 1:
+					self.instruments.update(
+						{instr.name: instr})
 
 	'''
 	Load user-defined strategies

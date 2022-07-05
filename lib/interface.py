@@ -138,7 +138,7 @@ class Dashboard:
 			marginU = int(ac.marginUsed*100/ac.NAV)
 	
 			stdscr.addstr(1, 1,
-			"%s  %s  NAV: %6.2f  Open: %3u  Used: %.2f(%2u%%)  Unrealized: %s  P/L: %s"
+			"%s  %s  NAV: %6.2f  Open: %3u  Used: %.2f(%2u%%)  Unrealized: %.2f  P/L: %.2f"
 			% (datetime.now(tz=timezone.utc).ctime(), ac.alias, ac.NAV, ac.openPositionCount,
 			ac.marginUsed, marginU, ac.unrealizedPL, ac.pl)
 			)

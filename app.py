@@ -36,10 +36,9 @@ if __name__ == '__main__':
 	'''
 	Configuration order: command line options then app.conf
 	'''
-	demoMode = config.get('DEMO', 0)
 	debugMode = config.get('DEBUG', 0)
 	textUi = config.get('TEXTUI', 0)
-	logfile = config.get('logfile', 'trader.log')
+	logfile = config.get('logfile', 'log/trader.log')
 
 	if args.report:
 		config['reportOnly'] = True
@@ -47,26 +46,16 @@ if __name__ == '__main__':
 		debugMode = 1
 		config['DEBUG'] = 1
 	if args.demo:
-		demoMode = 1
-		logfile = 'demo-trader.log'
 		config['DEMO'] = 1
-		config['sqlite'] = 'demo-transactions.db'
-		config['logfile'] = logfile
 	if args.textui:
 		textUi = 1
 		config['TEXTUI'] = 1
 	if args.log: # overwrite setting above
 		logfile = args.log
-		config['logfile'] = args.log
 
 	level = logging.DEBUG if debugMode == 1 else logging.INFO
 
-	instrumentConfigs = []
-	with open('instruments.conf', 'r') as f:
-		_ = json.load(f)
-		instrumentConfigs = _.get('instruments', [])
-
-	t = Trader(config, instrumentConfigs)
+	t = Trader(config)
 
 
 	# Use curses text-based UI
